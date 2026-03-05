@@ -67,6 +67,10 @@ In your GitHub repository, go to **Settings → Secrets and variables → Action
 |-------------------------------|-----------|
 | `SECURITY_COPILOT_REGION`     | `eastus`  |
 
+<div align="center">
+  <img src="https://github.com/mariocuomo/Security-Copilot-Syncronization/blob/main/img/secrets.png" width="600"> </img>
+</div>
+
 ### 3. Add Your Plugins
 
 Create YAML files in the `plugins/` folder. Each file must follow the standard Security Copilot plugin structure:
@@ -93,6 +97,10 @@ SkillGroups:
             // Your KQL query here
 ```
 
+<div align="center">
+  <img src="https://github.com/mariocuomo/Security-Copilot-Syncronization/blob/main/img/manifest.png" width="600"> </img>
+</div>
+
 ## Local Execution
 
 ```bash
@@ -117,3 +125,15 @@ You can also run the sync manually from GitHub:
 **Actions → Sync Security Copilot Plugins → Run workflow**
 
 This performs a **full sync** of all plugins in the folder.
+
+<div align="center">
+  <img src="https://github.com/mariocuomo/Security-Copilot-Syncronization/blob/main/img/action.png" width="600"> </img>
+</div>
+
+## Result
+
+Once the sync completes, the plugin is available in Security Copilot:
+
+<div align="center">
+  <img src="https://github.com/mariocuomo/Security-Copilot-Syncronization/blob/main/img/plugin.png" width="600"> </img>
+</div>
