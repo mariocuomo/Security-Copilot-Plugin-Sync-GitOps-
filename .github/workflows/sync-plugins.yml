@@ -1,0 +1,59 @@
+# ─────────────────────────────────────────────────────────────
+# Sync Security Copilot Plugins on push
+# Triggers when any .yaml/.yml file inside plugins/ is changed.
+# ─────────────────────────────────────────────────────────────
+name: Sync Security Copilot Plugins
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "plugins/**/*.yaml"
+      - "plugins/**/*.yml"
+  workflow_dispatch:          # Allow manual trigger for full sync
+
+permissions:
+  contents: read
+
+jobs:
+  sync-plugins:
+    runs-on: ubuntu-latest
+    steps:
+      # ── 1. Check out the repo ──────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2        # Need previous commit to detect changes
+
+      # ── 2. Set up Python ───────────────────────────────────
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # ── 3. Install dependencies ────────────────────────────
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # ── 4. Detect changed plugin files ─────────────────────
+      - name: Detect changed plugins
+        id: changes
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "CHANGED_FILES=" >> "$GITHUB_ENV"
+            echo "Running full sync (manual trigger)"
+          else
+            CHANGED=$(git diff --name-only HEAD~1 HEAD -- 'plugins/**/*.yaml' 'plugins/**/*.yml' | tr '\n' ',')
+            echo "CHANGED_FILES=${CHANGED}" >> "$GITHUB_ENV"
+            echo "Changed files: ${CHANGED}"
+          fi
+
+      # ── 5. Sync plugins to Security Copilot ────────────────
+      - name: Sync plugins
+        env:
+          AZURE_TENANT_ID:          ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID:          ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET:      ${{ secrets.AZURE_CLIENT_SECRET }}
+          SECURITY_COPILOT_REGION:  ${{ vars.SECURITY_COPILOT_REGION || 'eastus' }}
+          CHANGED_FILES:            ${{ env.CHANGED_FILES }}
+        run: python sync_plugins.py --plugins-dir plugins

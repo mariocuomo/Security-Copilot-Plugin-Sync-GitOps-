@@ -1,0 +1,31 @@
+# ─────────────────────────────────────────────────────────────
+# Example Security Copilot Plugin
+# Place your plugin YAML files in this directory.
+# Any push to main that modifies files here will trigger
+# automatic sync to Security Copilot.
+# ─────────────────────────────────────────────────────────────
+
+Descriptor:
+  Name: SamplePlugin
+  DisplayName: Sample Plugin
+  Description: A sample plugin for Security Copilot demonstrating the GitOps sync workflow.
+
+SkillGroups:
+  - Format: KQL
+    Skills:
+      - Name: GetRecentSignIns
+        DisplayName: Get Recent Sign-Ins
+        Description: Retrieves the most recent sign-in events from the last 24 hours.
+        Inputs:
+          - Name: UserPrincipalName
+            Description: The UPN of the user to look up.
+            Required: true
+        Settings:
+          Target: Defender
+          Template: |-
+            SigninLogs
+            | where TimeGenerated > ago(1d)
+            | where UserPrincipalName == "{{UserPrincipalName}}"
+            | project TimeGenerated, UserPrincipalName, AppDisplayName, ResultType, Location
+            | order by TimeGenerated desc
+            | take 25
