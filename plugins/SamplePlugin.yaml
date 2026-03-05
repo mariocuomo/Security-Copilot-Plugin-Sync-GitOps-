@@ -28,4 +28,5 @@ SkillGroups:
             | where UserPrincipalName == "{{UserPrincipalName}}"
             | project TimeGenerated, UserPrincipalName, AppDisplayName, ResultType, Location
             | order by TimeGenerated desc
-            | take 25
+            | take 30
+
